@@ -78,7 +78,7 @@ body, html {
   .skill-progress {
     height: 100%;
     width: 0;
-    background: radial-gradient(circle at 10% 50%, #00f0ff, #00ffff, #0055ff, #000);
+    background: radial-gradient(circle at 10% 50%, #6ca0dc, #4682b4, #0055ff, #000);
     background-size: 200% 100%;
     animation:
       fillPlasma 2s forwards ease-out,
@@ -86,9 +86,9 @@ body, html {
       plasmaFlow 2s linear infinite;
     border-radius: 10px;
     box-shadow:
-      0 0 10px #00ffff,
-      0 0 30px #00f0ff,
-      inset 0 0 15px #00ffff;
+      0 0 10px #4682b4,
+      0 0 30px #6ca0dc,
+      inset 0 0 15px #4682b4;
   }
   
   /* Fill animation */
@@ -105,9 +105,9 @@ body, html {
   @keyframes plasmaGlow {
     0%, 100% {
       box-shadow:
-        0 0 10px #00ffff,
-        0 0 30px #00f0ff,
-        inset 0 0 15px #00ffff;
+        0 0 10px #4682b4,
+        0 0 30px #6ca0dc,
+        inset 0 0 15px #4682b4;
     }
     50% {
       box-shadow:
