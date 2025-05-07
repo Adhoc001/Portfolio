@@ -37,24 +37,47 @@ body, html {
     margin-bottom: 0.4rem;
   }
   
-  .sidebar ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-  }
-  
-  .sidebar li::before {
-    content: "•";
-    color: #6ca0dc;
-    margin-right: 0.5rem;
-  }
-  
   .address-section,
   .skills-section {
     margin-bottom: 1.8rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid #444;
   }
+
+  .skills-section {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 1.2rem;
+    border: 1px solid #333;
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    scrollbar-width: thin;
+    scrollbar-color: #555 transparent;
+  }
+  
+  /* WebKit (Chrome, Edge, Safari) */
+  .skills-section::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .skills-section::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 10px;
+  }
+  
+  .skills-section::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  /* Responsive height adjustment */
+  @media (max-width: 767.98px) {
+    .skills-section {
+      max-height: 200px;
+      padding: 1rem;
+    }
+  }
+  
   
   .skill-item {
     margin-bottom: 1rem;
@@ -62,16 +85,17 @@ body, html {
   
   .skill-label {
     font-size: 0.9rem;
-    color: #ccc;
-    margin-bottom: 0.3rem;
+    color: #ddd;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
   }
   
   .skill-bar {
-    background-color: #111;
-    border-radius: 10px;
+    background-color: #222;
+    border-radius: 6px;
     height: 8px;
     overflow: hidden;
-    box-shadow: inset 0 0 10px #000;
+    box-shadow: inset 0 0 4px #000;
     position: relative;
   }
   
@@ -236,7 +260,7 @@ body, html {
     margin-left: 280px;
     width: calc(100% - 280px);
     padding: 2rem;
-    background-image: url('https://nexgent.com/wp-content/uploads/2021/07/shutterstock_1678326610-scaled.jpg');
+    background-image: url('image/background.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -253,7 +277,7 @@ body, html {
     width: 100%;
     height: 100%;
     backdrop-filter: blur(5px);
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1;
   }
   
