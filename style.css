@@ -333,9 +333,10 @@ body, html {
   }
   
   .timeline-item:hover {
-    transform: translateX(-5px);
+    transform: scale(1.02); /* Zooms slightly */
     box-shadow: 0 4px 12px rgba(108, 160, 220, 0.4);
   }
+  
 
   .timeline-item h5 {
     color: #f0f0f0;          /* Light font color */
