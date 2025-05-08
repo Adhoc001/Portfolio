@@ -267,6 +267,9 @@ body, html {
     min-height: 100vh;
     overflow-y: auto;
     scrollbar-width: none;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .content-area::before {
@@ -397,6 +400,9 @@ body, html {
       width: 100%;
       min-height: auto;
       padding: 0.22rem !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: hidden;
     }
   }
   
