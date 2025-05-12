@@ -250,7 +250,6 @@ body, html {
   /* Footer Styling */
   footer {
     border-top: 1px solid #444;
-    margin-top: 50px;
     padding-top: 20px;
     color: #ccc;
   }
@@ -338,22 +337,7 @@ body, html {
   
   .timeline-item:hover {
     transform: scale(1.02); /* Zooms slightly */
-    box-shadow: 0 4px 12px rgba(108, 160, 220, 0.4);
-  }
-  
-
-  .timeline-item h5 {
-    color: #f0f0f0;          /* Light font color */
-    font-weight: 300;        /* Lighter weight for elegance */
-    letter-spacing: 0.5px;   /* Subtle spacing */
-    font-size: 1.1rem;       /* Optional: slightly adjust size */
-  }
-  
-  .timeline-item p {
-    color: #dcdcdc;            /* Light gray color for readability */
-    font-weight: 300;           /* Lighter weight for a softer look */
-    font-size: 1rem;            /* Maintain readability */
-    line-height: 1.6;           /* Ensures proper spacing between lines */
+    box-shadow: 0 4px 12px rgba(108, 160, 220, 0.562);
   }
   
   .timeline-marker {
@@ -366,6 +350,61 @@ body, html {
     border-radius: 50%;
     border: 3px solid #5b90d2;
   }
+
+  .check-icon {
+    color: #6ca0dc; /* Adjust color */
+    font-size: 18px; /* Adjust size */
+    margin-right: 10px;
+  }
+
+  .timeline-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .timeline-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-list a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .timeline-list a:hover {
+    text-decoration: underline;
+  }
+
+  .toggle-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  }
+
+  .toggle-details ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0;
+  }
+
+  .toggle-details.open {
+    max-height: 300px; /* adjust if content gets cut off */
+  }
+
+  .details-inner {
+    padding-top: 0.25rem;
+  }
+
+  .arrow-icon svg {
+    width: 1em;
+    height: 1em;
+    fill: #fff; /* Adjust the color to match your theme */
+    transition: transform 0.3s ease;
+  }
+
+
   
   /* Responsive Layouts */
   @media (min-width: 768px) {
