@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Secure CLI Notepad</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: 'Fira Code', monospace;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #password-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #notepad-container {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
+
+    header {
+      background-color: #111;
+      padding: 1rem;
+      font-size: 1rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .notepad {
+      flex: 1;
+      padding: 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    input[type="password"] {
+      padding: 0.5rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 1rem;
+      border: none;
+      outline: none;
+      background-color: #111;
+      color: #fff;
+      border-bottom: 1px solid #555;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    input[type="password"]:focus {
+      border-color: #4da6ff;
+    }
+
+    .error {
+      color: red;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="password-screen">
+    <label for="password">Enter password to view notes:</label>
+    <input type="password" id="password" />
+    <div class="error" id="error-message"></div>
+  </div>
+
+  <div id="notepad-container">
+    <header>
+      devops@kubernetes:~$ cat notes.txt
+    </header>
+
+    <div class="notepad">
+$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-66b6c48dd5-dtx4r   1/1     Running   0          5m
+
+$ kubectl get svc
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          12d
+
+# Notes:
+# - Set up ingress controller
+# - Add HPA to api-deployment
+# - Monitor disk usage on PVs
+    </div>
+  </div>
+
+  <script>
+    const correctPassword = "devops123";
+    const input = document.getElementById("password");
+    const error = document.getElementById("error-message");
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        if (input.value === correctPassword) {
+          document.getElementById("password-screen").style.display = "none";
+          document.getElementById("notepad-container").style.display = "flex";
+        } else {
+          error.textContent = "Incorrect password. Try again.";
+          input.value = "";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
