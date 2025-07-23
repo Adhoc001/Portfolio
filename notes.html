@@ -250,6 +250,464 @@ ____________________
 14 Resolve VolumeMounts Issue in Kubernetes → Persistent Volume / Pod restart scenario (fits into maintenance/debugging)
 
 
+$ k get nodes
+$ k get pods -A
+$ k get svc -A
+$ k describe node $(k get nodes -o name | head -n1)
+$ k get events -A --sort-by=.metadata.creationTimestamp
+
+$ k get ns
+$ k create ns dev
+$ k get all -n dev
+$ k delete ns dev
+
+$ k run busybox --image=busybox --command -- sleep 3600 --dry-run=client -o yaml > busybox.yaml
+$ k apply -f busybox.yaml
+$ k get pod busybox
+$ k logs busybox
+$ k exec -it busybox -- sh
+
+$ k create secret generic dummy-secret --from-literal=foo=bar
+$ k describe secret dummy-secret
+$ k create configmap dummy-config --from-literal=ENV=dev
+$ k get configmap dummy-config -o yaml
+
+$ k label pod busybox test=true
+$ k annotate pod busybox owner="student"
+$ k get pod busybox --show-labels
+$ k label node $(k get nodes -o name | tail -n1) zone=us-west
+
+$ k scale deployment nginx-deployment --replicas=5 -n pathways
+$ k rollout status deployment nginx-deployment -n pathways
+$ k rollout history deployment nginx-deployment -n pathways
+
+$ k delete pod busybox
+$ k delete configmap dummy-config
+$ k delete secret dummy-secret
+
+# Just exploring pods and services in all namespaces
+$ k get pods -A -o wide
+$ k get svc -n kube-system
+$ k get endpoints -A
+
+# Describe a service or deployment (normal exploration)
+$ k describe svc kube-dns -n kube-system
+$ k describe deployment coredns -n kube-system
+
+# YAML generation and editing (normal student behavior)
+$ k create deployment myapp --image=nginx --dry-run=client -o yaml > myapp.yaml
+$ vi myapp.yaml  # Or nano, depending on editor
+$ k apply -f myapp.yaml
+$ k get deploy myapp
+$ k delete deploy myapp
+
+# ConfigMap inline YAML
+$ cat <<EOF | k apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: temp-config
+  namespace: pathways
+data:
+  welcome: "This is a test config"
+EOF
+
+# Label & select pods
+$ k label pod nginx-deployment-abc123 team=dev -n pathways
+$ k get pods -l team=dev -n pathways
+$ k get pods -n pathways -o custom-columns="POD:metadata.name,TEAM:metadata.labels.team"
+
+# Inspect logs
+$ k logs nginx-deployment-abc123 -n pathways
+$ k logs -l app=nginx -n pathways --tail=5
+
+# Check rollout and status
+$ k rollout status deploy nginx-deployment -n pathways
+$ k get rs -n pathways
+$ k describe rs -n pathways
+
+# Create a new namespace for practice
+$ kubectl create namespace demo-space
+
+# Check if your namespace was created
+$ kubectl get namespaces
+
+# Create a simple pod using nginx image
+$ kubectl run my-nginx --image=nginx --namespace=demo-space
+
+# Check if the pod is running
+$ kubectl get pods -n demo-space
+
+# View detailed info about the pod
+$ kubectl describe pod my-nginx -n demo-space
+
+# See pod logs (for troubleshooting or curiosity)
+$ kubectl logs my-nginx -n demo-space
+
+# Create a deployment with 2 replicas
+$ kubectl create deployment web-app --image=nginx --replicas=2 -n demo-space
+
+# Check the deployment and replicas
+$ kubectl get deployments -n demo-space
+$ kubectl get pods -n demo-space
+
+# Label a pod (used for grouping or selection)
+$ kubectl label pod my-nginx app=frontend -n demo-space
+
+# Filter pods by label
+$ kubectl get pods -l app=frontend -n demo-space
+
+# Create a configmap (store config settings)
+$ kubectl create configmap demo-config --from-literal=app-color=blue -n demo-space
+
+# View the configmap
+$ kubectl get configmap demo-config -n demo-space -o yaml
+
+# Create a secret (to store passwords)
+$ kubectl create secret generic demo-secret --from-literal=username=admin --from-literal=password=pass123 -n demo-space
+
+# Show the secret (base64 encoded)
+$ kubectl get secret demo-secret -n demo-space -o yaml
+
+# Watch the pods as they change (live)
+$ kubectl get pods -n demo-space -w 
+
+$ k create namespace pathways	kbi
+$ k get namespace
+
+$ k run nginx-pod --image=nginx:latest --restart=Never --namespace=pathways	kbii
+$ k get pods -n pathways
+
+$ k create deployment nginx-deployment --image=nginx:latest --replicas=3 --namespace=pathways kbiii
+$ k get deployments -n pathways
+$ k describe deployment nginx-deployment -n pathways
+
+$ k expose deployment nginx-deployment --name=nginx-service --type=ClusterIP --port=80 --namespace=pathways	kbiv
+$ k get ns                                             (verify namespace)
+$ k get pods -n pathways                               (verify pod)
+$ k get deployment nginx-deployment -n pathways        (verify deployment)
+$ k get svc -n pathways                                (verify service)
+
+# Delete a pod (to recreate or troubleshoot)
+$ kubectl delete pod my-nginx -n demo-space
+
+$ vi app-configmap.yaml		kbv
+###
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: pathways
+data:
+  app.properties: |
+    key1=value1
+    key2=value2
+###
+$ k apply -f app-configmap.yaml
+$ k describe configmap app-config -n pathways
+
+$ k create secret generic app-secret --from-literal=username=admin --from-literal=password=pathways2024 -n pathways	kbvi
+or
+$ vi app-secret.yaml
+$ echo -n 'admin' | base64              (copy output to username)
+$ echo -n 'pathways2024' | base64       (copy output to password)
+###
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+  namespace: pathways
+type: Opaque
+data:
+  username: [paste here the | base64]
+  password: [paste here the | base64]
+###
+$ k apply -f app-secret.yaml                  (apply)
+$ k describe secret app-secret -n pathways    (verify)
+
+T1	kbvii
+$ k create namespace pathways     (if not yet)
+$ k run app-pod --image=nginx:latest --restart=Never --namespace=pathways
+$ k get pods -n pathways
+T2
+$ k delete pod app-pod -n pathways
+$ vi app-pod.yaml
+
+# Check events in namespace (for troubleshooting)
+$ kubectl get events -n demo-space --sort-by=.metadata.creationTimestamp
+
+===================
+
+# View the nodes in your cluster
+$ kubectl get nodes
+
+# Add a label to one node (e.g., for frontend workloads)
+$ kubectl label nodes <node-name> role=frontend
+
+# Add a different label to another node (e.g., for backend workloads)
+$ kubectl label nodes <node-name> role=backend
+
+# Check node labels to confirm
+$ kubectl get nodes --show-labels
+
+# Create a pod that runs only on a node with label role=frontend
+$ kubectl run frontend-pod --image=nginx --dry-run=client -o yaml > frontend-pod.yaml
+
+# Taint a node so that no pods can run on it unless they tolerate the taint
+$ kubectl taint nodes <node-name> dedicated=frontend:NoSchedule
+
+# Create a pod that tolerates the taint
+$ kubectl run toleration-pod --image=nginx --dry-run=client -o yaml > toleration-pod.yaml
+
+# View where your pods are scheduled
+$ kubectl get pods -o wide
+
+# Delete a pod if needed (to test re-scheduling)
+$ kubectl delete pod frontend-pod
+
+# Basic Pod Using nodeSelector
+$ vi pod-nodeselector.yaml
+###
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-pod-selector
+spec:
+  containers:
+  - name: http-container
+    image: httpd
+  nodeSelector:
+    zone: zone1
+###
+$ kubectl apply -f pod-nodeselector.yaml
+
+
+# Pod Using nodeAffinity
+$ vi pod-nodeaffinity.yaml
+###
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-pod-affinity
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: zone
+            operator: In
+            values:
+            - zone2
+  containers:
+  - name: busybox
+    image: busybox
+    command: ["sleep", "3600"]
+###
+
+# Pod with Labels
+$ vi pod-labels.yaml
+###
+apiVersion: v1
+kind: Pod
+metadata:
+  name: labeled-pod
+  labels:
+    app: web
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+###
+
+# Deployment 
+$ vi deployment-basic.yaml
+###
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+###
+
+$ k label node [nodename01] role=frontend	kbix
+$ k label node [nodename02] role=backend
+$ k get node --show-labels
+
+$ vi frontend-pod.yaml		kbx
+###
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-pod
+  namespace: pathways
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  nodeSelector:
+    role: frontend
+###
+$ vi backend-pod.yaml
+###
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-pod
+  namespace: pathways
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  nodeSelector:
+    role: backend
+###
+$ k apply -f frontend-pod.yaml        (apply)
+$ k apply -f backend-pod.yaml         (apply)
+$ k get pods -n pathways -o wide      (verify)
+
+$ k taint node [nodename01] dedicated=frontend:NoSchedule   (tainted)	kbxi
+$ vi tolerate-pod.yaml
+###
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerate-pod
+  namespace: pathways
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "frontend"
+    effect: "NoSchedule"
+###
+$ k apply -f tolerate-pod.yaml                (apply)
+$ k get pods -n pathways -o wide              (verify)
+$ k describe pod tolerate-pod -n pathways     (verify)
+
+
+$ k create namespace opswerks       (create namespace opswerks)	kbxii
+$ vi nginx-deployment.yaml          (create deployment)
+###
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: opswerks
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.18
+        ports:
+        - containerPort: 80
+###
+$ k apply -f nginx-deployment.yaml     (apply)
+$ k get deployments -n opswerks        (verify)
+$ k get pods -n opswerks -o wide       (verify)
+
+$ k set image deployment/nginx-deployment nginx=nginx:1.19 -n opswerks	kbxiii
+$ k get pods -n opswerks -o wide
+$ k describe deployment nginx-deployment -n opswerks | grep Image
+
+$ vi nginx-configmap.yaml	kbxiv
+###
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: opswerks
+data:
+  index.html: |
+    Hello from OpsWerks! Pathways!
+###
+$ k apply -f nginx-configmap.yaml
+$ vi nginx-deployment.yaml
+###
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: opswerks
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.19
+          volumeMounts:
+            - name: html-volume
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+      volumes:
+        - name: html-volume
+          configMap:
+            name: nginx-config
+###
+$ k apply -f nginx-deployment.yaml
+$ kubectl get pods -n opswerks
+$ kubectl exec -it [podname-5572b23b4] -n opswerks -- cat /usr/share/nginx/html/index.html
+
+
+
+# Service 
+$ vi service-basic.yaml
+###
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: myapp
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+###
+
+$ k get pods	kbxv
+$ k describe pod [podname01]
+$ k log [podname01]
+$ vi web.app.yaml
+###
+edit web.app
+###
+$ k replace -f web-app.yaml     (not delete the original pod)
+$ k edit pod [podname01]        (if above command will error)
+
+
 
     </div>
   </div>
