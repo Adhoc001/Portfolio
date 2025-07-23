@@ -344,67 +344,6 @@ $ kubectl get pods -n demo-space
 # Label a pod (used for grouping or selection)
 $ kubectl label pod my-nginx app=frontend -n demo-space
 
-$ k create namespace pathways	kbi
-$ k get namespace
-
-$ k run nginx-pod --image=nginx:latest --restart=Never --namespace=pathways	kbii
-$ k get pods -n pathways
-
-$ k create deployment nginx-deployment --image=nginx:latest --replicas=3 --namespace=pathways kbiii
-$ k get deployments -n pathways
-$ k describe deployment nginx-deployment -n pathways
-
-$ k expose deployment nginx-deployment --name=nginx-service --type=ClusterIP --port=80 --namespace=pathways	kbiv
-$ k get ns                                             (verify namespace)
-$ k get pods -n pathways                               (verify pod)
-$ k get deployment nginx-deployment -n pathways        (verify deployment)
-$ k get svc -n pathways                                (verify service)
-
-# Delete a pod (to recreate or troubleshoot)
-$ kubectl delete pod my-nginx -n demo-space
-
-$ vi app-configmap.yaml		kbv
-###
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-  namespace: pathways
-data:
-  app.properties: |
-    key1=value1
-    key2=value2
-###
-$ k apply -f app-configmap.yaml
-$ k describe configmap app-config -n pathways
-
-$ k create secret generic app-secret --from-literal=username=admin --from-literal=password=pathways2024 -n pathways	kbvi
-or
-$ vi app-secret.yaml
-$ echo -n 'admin' | base64              (copy output to username)
-$ echo -n 'pathways2024' | base64       (copy output to password)
-###
-apiVersion: v1
-kind: Secret
-metadata:
-  name: app-secret
-  namespace: pathways
-type: Opaque
-data:
-  username: [paste here the | base64]
-  password: [paste here the | base64]
-###
-$ k apply -f app-secret.yaml                  (apply)
-$ k describe secret app-secret -n pathways    (verify)
-
-T1	kbvii
-$ k create namespace pathways     (if not yet)
-$ k run app-pod --image=nginx:latest --restart=Never --namespace=pathways
-$ k get pods -n pathways
-T2
-$ k delete pod app-pod -n pathways
-$ vi app-pod.yaml
-
 # Filter pods by label
 $ kubectl get pods -l app=frontend -n demo-space
 
