@@ -302,17 +302,6 @@ $ k apply -f myapp.yaml
 $ k get deploy myapp
 $ k delete deploy myapp
 
-# ConfigMap inline YAML
-$ cat <<EOF | k apply -f -
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: temp-config
-  namespace: pathways
-data:
-  welcome: "This is a test config"
-EOF
-
 # Label & select pods
 $ k label pod nginx-deployment-abc123 team=dev -n pathways
 $ k get pods -l team=dev -n pathways
