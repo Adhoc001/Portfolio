@@ -87,18 +87,112 @@
     </header>
 
     <div class="notepad">
-$ kubectl get pods
-NAME                                READY   STATUS    RESTARTS   AGE
-nginx-deployment-66b6c48dd5-dtx4r   1/1     Running   0          5m
+___________________
+Deploy Pods in Kubernetes Cluster
 
-$ kubectl get svc
-NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          12d
+The Nautilus DevOps team is diving into Kubernetes for application management. One team member has a task to create a pod according to the details below:
 
-# Notes:
-# - Set up ingress controller
-# - Add HPA to api-deployment
-# - Monitor disk usage on PVs
+1. Create a pod named pod-nginx using the nginx image with the latest tag. Ensure to specify the tag as nginx:latest.
+
+-->> $ kubectl run pod-nginx --image=nginx:latest (create pod)
+$ kubectl run pod-nginx --image=nginx:latest --restart=Never --dry-run=client -o yaml > pod-nginx.yaml
+{
+🔹 This creates a YAML template for the pod named [pod-nginx] using the image [nginx:latest].
+🔹 [--restart=Never] ensures it's a standalone Pod (not a Deployment).
+🔹 [--dry-run=client -o yaml] outputs the YAML without creating the pod yet, and saves it to [pod-nginx.yaml].
+}
+
+
+2. Set the app label to nginx_app, and name the container as nginx-container.
+
+$ vi pod-nginx.yaml
+###
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-nginx
+  labels:
+    app: nginx_app     # <-- Added this label
+spec:
+  containers:
+  - name: nginx-container       # <-- Renamed container
+    image: nginx:latest
+###
+
+$ kubectl apply -f pod-nginx.yaml       (apply the final YAML)
+
+$ kubectl get pods  (show pods created)
+$ kubectl get pods -o wide    (show pods with node)
+$ kubectl describe pod pod-nginx
+
+Note: The kubectl utility on jump_host is configured to operate with the Kubernetes cluster.
+
+
+___________________
+Deploy Applications with Kubernetes Deployments
+
+
+
+___________________
+Setup Kubernetes Namespaces and PODs
+
+
+
+___________________
+Set Resource Limits in Kubernetes Pods
+
+
+
+___________________
+Execute Rolling Updates in Kubernetes
+
+
+
+___________________
+Revert Deployment to Previous Version in Kubernetes
+
+
+
+___________________
+Deploy ReplicaSet in Kubernetes Cluster
+
+
+
+___________________
+Schedule Cronjobs in Kubernetes
+
+
+
+___________________
+Create Countdown Job in Kubernetes
+
+
+
+___________________
+Set Up Time Check Pod in Kubernetes
+
+
+
+___________________
+Resolve Pod Deployment Issue
+
+
+
+___________________
+Update Deployment and Service in Kubernetes
+
+
+
+___________________
+Deploy Highly Available Pods with ReplicationController
+
+
+
+___________________
+Resolve VolumeMounts Issue in Kubernetes
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$
 
 ____________________
 01-Introduction
