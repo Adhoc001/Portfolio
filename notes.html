@@ -158,7 +158,7 @@ sudo systemctl status kubelet
 
 
 
-1. Draining and Cordoning the Worker Node (20 Points)
+1. Draining and Cordoning the Worker Node
     • Task 1: Identify a node in your cluster to perform maintenance on.
     • Task 2: Cordon the node to mark it as unschedulable. Verify the node is marked as unschedulable.
     • Task 3: Drain the node to evict all pods from it. Verify no pods are running on the node except for daemonsets.
@@ -180,7 +180,7 @@ $ kubectl get nodes         (verify status [Ready])
 
 
 
-2. Upgrading Kubernetes Cluster Using Kubeadm (10 Points)
+2. Upgrading Kubernetes Cluster Using Kubeadm
     • Task 1: On the control plane node, view the current version of Kubernetes.
 $ kubectl version --short       (verify version kubernetes)
 $ kubeadm verion                (verify versopn kubeadm)
@@ -208,7 +208,7 @@ $ kubectl get nodes -o wide (verify node version)
 
 
 
-3. Managing Etcd Backups (15 Points)
+3. Managing Etcd Backups
     • Task 1: On the control plane node, identify the etcd pod.
 $ ssh &lt;control-plane-node&gt;
 $ kubectl get pods -n kube-system -o wide | grep etcd   (identify etcd pod)
@@ -328,7 +328,7 @@ kubectl describe pvc my-pvc
 
 
 
-1. Create a Persistent Volume (PV) (5 Points)
+1. Create a Persistent Volume (PV)
     • Task 1: Create a namespace called storage-opswerks.
     • Task 2: Create a Persistent Volume (PV) named pv-example with the following specifications:
         • Capacity: 1Gi
@@ -357,7 +357,7 @@ $ kubectl get pv                            (verify)
 
 
 
-2. Create a Persistent Volume Claim (PVC) (5 Points)
+2. Create a Persistent Volume Claim (PVC)
     • Task 1: Create a Persistent Volume Claim (PVC) named pvc-example in the storage-opswerks namespace to use the PV you created with the following specs:
         •Request: 1Gi
         •Access Modes: ReadWriteOnce
@@ -384,7 +384,7 @@ $ kubectl get pvc -n storage-opswerks   (verify)
 
 
 
-3. Create a ConfigMap (5 Points)
+3. Create a ConfigMap
 Task: Create a ConfigMap named app-config in the storage-opswerks namespace with the following key-value pair:
 key: config.json
 value: {"key": "value"}
@@ -407,7 +407,7 @@ $ kubectl get configmap app-config -n storage-opswerks -o yaml  (to see the cont
 
 
 
-4. Create a Secret (5 Points)
+4. Create a Secret
     •Task: Create a Secret named db-secret in the storage-opswerks namespace with the following key-value pair:
         • key: password
         • value: pathways2025 (base64 encoded)
@@ -418,7 +418,7 @@ $ kubectl describe secret db-secret -n storage-opswerks     (verify)
 
 
 
-5. Mount the ConfigMap and Secret into a Pod (10 Points)
+5. Mount the ConfigMap and Secret into a Pod
     • Task 1: Create a pod named configmap-secret-pod in the storage-opswerks namespace.
     • Task 2: Mount the ConfigMap app-config and Secret db-secret into the pod as volumes.
 
@@ -520,7 +520,7 @@ kubectl get networkpolicy -n &lt;ns&gt;
 
 
 
-1. Create a Network Policy (7 Points)
+1. Create a Network Policy
     • Task 1: Create a namespace called networking-opswerks.
     • Task 2: Create a Network Policy named allow-frontend in the networking-opswerks namespace to allow incoming traffic to the frontend pod on port 80 from pods in the same namespace with the label role=backend.
 
@@ -551,7 +551,7 @@ $ kubectl apply -f allow-frontend.yaml      (apply)
 $ kubectl get ns        (verify)
 
 
-2. Create a ClusterIP Service (5 Points)
+2. Create a ClusterIP Service
     • Task: Create a ClusterIP Service named backend-service in the networking-opswerks namespace to expose the backend pods on port 8080.
 
 [skip if already done]
@@ -598,7 +598,7 @@ $ kubectl describe networkpolicy allow-frontend -n networking-opswerks  (verify)
 
 
     
-3. Create an Ingress Resource (8 Points)
+3. Create an Ingress Resource
     • Task: Create an Ingress resource named frontend-ingress in the networking-opswerks namespace to expose the frontend pods on port 80 with the path /app.
 
 $ vi frontend-ingress.yaml      (create ingress)
@@ -630,7 +630,7 @@ $ kubectl describe ingress frontend-ingress -n networking-opswerks  (verify)
 
 Troubleshooting
 
-1. Troubleshoot the node and pod (15 Points)
+1. Troubleshoot the node and pod
     • Scenario: You are a Kubernetes administrator responsible for maintaining the health and performance of your organization's Kubernetes cluster. You have been notified that one of the nodes is not functioning properly.
     • You also found that the pod fix-my-pod is not running as it is supposed to.
     • Tasks:
