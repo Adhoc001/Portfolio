@@ -53,619 +53,201 @@
     <div class="notepad">
 
 
-Cluster-Maintenance
+_______________
+<h3>Set Up Git Repository on Storage Server</h3>
 
-10 Set Up Time Check Pod in Kubernetes → Time sync checks (can also be troubleshooting or monitoring)
+The Nautilus development team has provided requirements to the DevOps team for a new application development project, specifically requesting the establishment of a Git repository. Follow the instructions below to create the Git repository on the Storage server in the Stratos DC:
 
-___________________
-14 Resolve VolumeMounts Issue in Kubernetes → Persistent Volume / Pod restart scenario (fits into maintenance/debugging)
+1. Utilize yum to install the git package on the Storage Server.
+$ ssh natasha@ststor01      (Storage Server)
+$ sudo yum install git -y   (install Git)
 
-We deployed a Nginx and PHPFPM based setup on Kubernetes cluster last week and it had been working fine. This morning one of the team members made a change somewhere which caused some issues, and it stopped working. Please look into the issue and fix it:
+2. Create a bare repository named /opt/beta.git (ensure exact name usage).
+$ sudo git init --bare /opt/beta.git    (create empty repo)
+$ ls -ld /opt/beta.git                  (show directory)
+$ git --git-dir=/opt/beta.git status    (verify status)
 
-The pod name is nginx-phpfpm and configmap name is nginx-config. Figure out the issue and fix the same.
 
-Once issue is fixed, copy /home/thor/index.php file from jump host into nginx-container under nginx document root and you should be able to access the website using Website button on top bar.
+_______________
+<h3>Clone Git Repository on Storage Server</h3>
 
-Note: The kubectl utility on jump_host has been configured to work with the kubernetes cluster. 
+The DevOps team established a new Git repository last week, which remains unused at present. However, the Nautilus application development team now requires a copy of this repository on the Storage Server in the Stratos DC. Follow the provided details to clone the repository:
 
-$ kubectl get pods
-$ kubectl get configmap
-$ kubectl describe configmap nginx-config
-$ kubectl get pod nginx-phpfpm -o yaml  > /tmp/nginx.yaml
-$ ls -l /tmp/
-$ cat /tmp/nginx.yaml
-$ vi nginx.yaml
-###
-replace /usr/share/nginx/html to /var/www/html
-###
-$ kubectl replace -f /tmp/nginx.yaml --force
-$ kubectl get pods
-$ ls -l /home/thor/
-$ kubectl cp  /home/thor/index.php  nginx-phpfpm:/var/www/html -c nginx-container
-$ kubectl exec -it nginx-phpfpm -c nginx-container  -- curl -I  http://localhost:8099
+1. The repository to be cloned is located at /opt/cluster.git
+$ ssh natasha@ststor01          (Storage Server)
+$ cd /usr/src/kodekloudrepos    (change to target location)
 
+2. Clone this Git repository to the /usr/src/kodekloudrepos directory. Ensure no modifications are made to the repository during the cloning process.
+$ sudo git clone /opt/cluster.git     (git location to be cloned)
 
 
-Cluster Maintenance
 
-# View all nodes and their status
-kubectl get nodes
+_______________
+<h3>Fork a Git Repository</h3>
 
-# Mark a node as unschedulable (cordon = no new pods will be scheduled)
-kubectl cordon &lt;node-name&gt;
+There is a Git server utilized by the Nautilus project teams. Recently, a new developer named Jon joined the team and needs to begin working on a project. To begin, he must fork an existing Git repository. Follow the steps below:
 
-# Allow scheduling again (uncordon)
-kubectl uncordon &lt;node-name&gt;
+1. Click on the Gitea UI button located on the top bar to access the Gitea page.
 
-# Safely evict all pods from a node before maintenance
-kubectl drain &lt;node-name&gt; --ignore-daemonsets --delete-emptydir-data
+2. Login to Gitea server using username jon and password Jon_pass123.
 
-# Save a snapshot of etcd database
-ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-snapshot.db \
-  --endpoints=https://127.0.0.1:2379 \
-  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
-  --cert=/etc/kubernetes/pki/etcd/server.crt \
-  --key=/etc/kubernetes/pki/etcd/server.key
+3. Once logged in, locate the Git repository named sarah/story-blog and fork it under the jon user.
 
-# Restore to a new data-dir (do not overwrite live data directly)
-ETCDCTL_API=3 etcdctl snapshot restore /tmp/etcd-snapshot.db \
-  --data-dir=/var/lib/etcd-from-backup
+Note: For tasks requiring web UI changes, screenshots are necessary for review purposes. Additionally, consider utilizing screen recording software such as loom.com to record and share your task completion process.
 
-kubeadm version
-kubectl version
+** Mag FORK ra **
 
-# On control plane node
-sudo apt-mark unhold kubeadm
-sudo apt-get update && sudo apt-get install -y kubeadm=1.30.2-00
-sudo apt-mark hold kubeadm
 
-sudo kubeadm upgrade plan
+_______________
+<h3>Update Git Repository with Sample HTML File</h3>
 
-sudo kubeadm upgrade apply v1.30.2
+The Nautilus development team has initiated a new project development, establishing various Git repositories to manage each project's source code. Recently, a repository named /opt/blog.git was created. The team has provided a sample index.html file located on the jump host under the /tmp directory. This repository has been cloned to /usr/src/kodekloudrepos on the storage server in the Stratos DC.
 
-sudo apt-mark unhold kubelet kubectl
-sudo apt-get install -y kubelet=1.30.2-00 kubectl=1.30.2-00
-sudo apt-mark hold kubelet kubectl
-sudo systemctl restart kubelet
+1. Copy the sample index.html file from the jump host to the storage server placing it within the cloned repository at /usr/src/kodekloudrepos/blog.
+$ sudo scp /tmp/index.html natasha@ststor01:/tmp  (copy from jump server to storage server)
 
-# List pods in all namespaces
-kubectl get pods -A
+$ ssh natasha@ststor01  (login to storage server)
+$ sudo su -             (switch to root user)
+$ cd   /usr/src/kodekloudrepos/blog     (go to project repo)
+$ ls -l     (verify)
+$ cp /tmp/index.html .  (Copy html file from tmp to repo)
+$ ls -l     (verify)
 
-# See pods on a specific node
-kubectl get pods --all-namespaces --field-selector spec.nodeName=&lt;node-name&gt;
+2. Add and commit the file to the repository.
+$ git add index.html                (add the file)
+$ git commit -m "add index.html"    (commit the file)
 
-# Describe a node for full condition
-kubectl describe node &lt;node-name&gt;
+3. Push the changes to the master branch.
+$ git push -u origin master         (push to master branch)
 
-# Check events in the cluster
-kubectl get events --sort-by=.metadata.creationTimestamp
+https://www.nbtechsupport.co.in/2021/05/git-repository-update.html
 
-# Drain a node before shutdown
-kubectl drain &lt;node-name&gt; --ignore-daemonsets --delete-emptydir-data
 
-# Remove node from cluster (e.g. after hardware failure)
-kubectl delete node &lt;node-name&gt;
+_______________
+<h3>Delete Git Branch</h3>
 
-# Restart kubelet and container runtime
-sudo systemctl restart kubelet
-sudo systemctl restart containerd
+The Nautilus developers are engaged in active development on one of the project repositories located at /usr/src/kodekloudrepos/ecommerce. During testing, several test branches were created, and now they require cleanup. Here are the requirements provided to the DevOps team:
 
-# Check disk usage
-df -h
+On the Storage server in Stratos DC, delete a branch named xfusioncorp_ecommerce from the /usr/src/kodekloudrepos/ecommerce Git repository.
 
-# Check kubelet status
-sudo systemctl status kubelet
+$ ssh natasha@ststor01      (storage server)
+$ sudo su -                 (switch to root user)
+$ cd /usr/src/kodekloudrepos/ecommerce      (go to Git repo folder path)
+$ git status                (check git status)
+$ git branch -a             (check branches and which one is default)
+$ git checkout master       (go to master branch)
+$ git branch --delete xfusioncorp_ecommerce     (delete branch)
+$ git brannnch -a           (verify branch)
 
+https://www.nbtechsupport.co.in/2023/10/git-delete-branches-kodekloud.html
 
 
-1. Draining and Cordoning the Worker Node
-    • Task 1: Identify a node in your cluster to perform maintenance on.
-    • Task 2: Cordon the node to mark it as unschedulable. Verify the node is marked as unschedulable.
-    • Task 3: Drain the node to evict all pods from it. Verify no pods are running on the node except for daemonsets.
-    • Task 4: Uncordon the node to mark it as schedulable again. Verify the node is back to schedulable status.
+_______________
+<h3>Git Install and Create Repository</h3>
 
-&lt;worker-node&gt;
+The Nautilus development team shared with the DevOps team requirements for new application development, setting up a Git repository for that project. Create a Git repository on Storage server in Stratos DC as per details given below:
 
-$ kubectl get nodes
-# choose worker node
+1. Install git package using yum on Storage server.
 
-$ kubectl cordon rori-a2t-pe-kub1-2b.acad.opswerks.net
-$ kubectl get nodes         (verify status [Ready,SchedulingDisabled])
+2. After that, create/init a git repository named /opt/media.git (use the exact name as asked and make sure not to create a bare repository).
 
-$ kubectl drain rori-a2t-pe-kub1-2b.acad.opswerks.net --ignore-daemonsets --delete-emptydir-data
+$ ssh natasha@ststor01        (storage server)
+$ sudo su -                   (switch to root user)
+$ yum install -y git          (install git)
+$ rpm -qa |grep git           (verify install)
+$ ls -ld /opt                 (check path)
+$ cd /opt                     (go to location path)
+$ git init media.git          (init git repo)
+$ ls -ld                      (verify)
 
-$ kubectl uncordon rori-a2t-pe-kub1-2b.acad.opswerks.net
-$ kubectl get nodes         (verify status [Ready])
+https://www.nbtechsupport.co.in/2021/06/git-install-and-create-repository.html
 
+_______________
+<h3>Git Create Branches</h3>
 
+Nautilus developers are actively working on one of the project repositories, /usr/src/kodekloudrepos/blog. Recently, they decided to implement some new features in the application, and they want to maintain those new changes in a separate branch. Below are the requirements that have been shared with the DevOps team:
 
+1. On Storage server in Stratos DC create a new branch xfusioncorp_blog from master branch in /usr/src/kodekloudrepos/blog git repo.
 
-2. Upgrading Kubernetes Cluster Using Kubeadm
-    • Task 1: On the control plane node, view the current version of Kubernetes.
-$ kubectl version --short       (verify version kubernetes)
-$ kubeadm verion                (verify versopn kubeadm)
-$ kubectl get nodes             (verify node version)
+2. Please do not try to make any changes in the code.
 
-    • Task 2: Upgrade kubeadm to the desired version: v1.30.2-**. Identify the versions first.
-$ yum list --showduplicates kubeadm --disableexcludes=kubernetes    (version info)
-$ sudo yum install -y kubeadm-1.30.2-0 --disableexcludes=kubernetes (install specific version)
-$ kubeadm version   (verify)
-
-    • Task 3: Plan the upgrade.
-$ sudo kubeadm upgrade plan     (simulate upgrade)
-
-    • Task 4: Apply the upgrade.
-$ sudo kubeadm upgrade apply v1.30.2    (run and upgrade)
-
-    • Task 5: Upgrade the kubelet and kubectl with the same version of kubeadm. Restart the kubelet afterwards.
-$ sudo yum install -y kubelet-1.30.2-0 kubectl-1.30.2-0 --disableexcludes=kubernetes    (Upgrade kubelet and kubectl)
-$ sudo systemctl daemon-reexec      
-$ sudo systemctl restart kubelet       (restart kubelet)
-
-    • Task 6: Verify control plane node is running the new version.
-$ kubectl version --short   (verify)
-$ kubectl get nodes -o wide (verify node version)
-
-
-
-3. Managing Etcd Backups
-    • Task 1: On the control plane node, identify the etcd pod.
-$ ssh &lt;control-plane-node&gt;
-$ kubectl get pods -n kube-system -o wide | grep etcd   (identify etcd pod)
-
-    • Task 2: Create a snapshot of the etcd database and save it to /tmp/&lt;filename&gt;.
-$ export ETCDCTL_API=3      (create snapshot)
-$ sudo etcdctl snapshot save /tmp/etcd-snapshot.db --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key     (save snapshot)
-    
-    • Task 3: Verify the snapshot file exists in /tmp/&lt;filename&gt;.
-$ ls -lh /tmp/etcd-snapshot.db      (verify)
-
-    • Task 4: Restore the etcd database from the snapshot to a new directory /var/lib/etcd-from-backup.
-$ sudo mkdir -p /var/lib/etcd-from-backup   (create restore dir)
-$ sudo etcdctl snapshot restore /tmp/etcd-snapshot.db --data-dir=/var/lib/etcd-from-backup  (restore snapshot)
-
-    • Task 5: Verify the snapshot file exists in the new directory.
-$ ls -l /var/lib/etcd-from-backup (verify output expected: member/)
-$ ls /var/lib/etcd-from-backup/member   (check contents output expected: snap/  wal/)
-
+$ ssh natasha@ststor01            (storage server)
+$ sudo su -                       (switch to root user)
+$ cd /usr/src/kodekloudrepos/blog (go to location path)
+$ ls -ld                          (verify)
+$ git checkout master             (go to master branch)
+$ git checkout -b xfusioncorp_blog    (create new branch)
+$ git status                      (check status)
+$ git branch -a                   (verify)
 
-# Start here if etcdctl command not found
-$ grep image /etc/kubernetes/manifests/etcd.yaml    (etcd version)
-$ curl -LO https://github.com/etcd-io/etcd/releases/download/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz    (Download the tarball)
-$ tar xzvf etcd-${ETCD_VER}-linux-amd64.tar.gz  (extract)
-$ sudo mv etcd-${ETCD_VER}-linux-amd64/etcdctl /usr/local/bin/  (move to PATH)
-$ etcdctl version   (verify)
-# Go back to tasks
-
-
-
-Storage
-
-# Create a PersistentVolume
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: my-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /mnt/data
-
-kubectl apply -f pv.yaml
-kubectl get pv
-
-# Create a PersistentVolumeClaim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: my-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-
-kubectl apply -f pvc.yaml
-kubectl get pvc
-
-apiVersion: v1
-kind: Pod
-metadata:
-  name: mypod
-spec:
-  containers:
-  - name: app
-    image: nginx
-    volumeMounts:
-    - mountPath: "/usr/share/nginx/html"
-      name: my-storage
-  volumes:
-  - name: my-storage
-    persistentVolumeClaim:
-      claimName: my-pvc
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-data:
-  APP_ENV: production
-  LOG_LEVEL: info
-
-kubectl apply -f configmap.yaml
-kubectl get configmap
-
-envFrom:
-- configMapRef:
-    name: app-config
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: my-secret
-type: Opaque
-data:
-  username: dXNlcg==      # base64 for 'user'
-  password: cGFzc3dvcmQ=  # base64 for 'password'
-
-kubectl apply -f secret.yaml
-kubectl get secret
-
-envFrom:
-- secretRef:
-    name: my-secret
-
-# Check volume status
-kubectl get pv
-kubectl get pvc
-
-# Describe to debug binding
-kubectl describe pvc my-pvc
-
-
-
-1. Create a Persistent Volume (PV)
-    • Task 1: Create a namespace called storage-opswerks.
-    • Task 2: Create a Persistent Volume (PV) named pv-example with the following specifications:
-        • Capacity: 1Gi
-        • Access Modes: ReadWriteOnce
-        • Storage Class: manual
-
-$ kubectl create namespace storage-opswerks     (create namespace)
-$ vi pv-example.yaml                            (create persitent volume)
-###
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-example
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: manual
-  hostPath:
-    path: /mnt/data
-###
-$ kubectl apply -f pv-example.yaml          (apply)
-$ kubectl get pv                            (verify)
-
-
-
-
-2. Create a Persistent Volume Claim (PVC)
-    • Task 1: Create a Persistent Volume Claim (PVC) named pvc-example in the storage-opswerks namespace to use the PV you created with the following specs:
-        •Request: 1Gi
-        •Access Modes: ReadWriteOnce
-    • Task 2: Verify that the PVC pvc-example in the storage-opswerks namespace is bound to the PV pv-example.
-
-$ vi pvc-example.yaml           (create persistent volume claim)
-###
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-example
-  namespace: storage-opswerks
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: manual
-### (&lt;storageClassName&gt; of PV and PVC must the same)
-$ kubectl apply -f pvc-example.yaml     (apply)
-$ kubectl get pvc -n storage-opswerks   (verify)
-# STATUS=Bound and VOLUME=pv-example
-
-
-
-3. Create a ConfigMap
-Task: Create a ConfigMap named app-config in the storage-opswerks namespace with the following key-value pair:
-key: config.json
-value: {"key": "value"}
-
-$ vi app-config.yaml        (create configmap)
-###
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-  namespace: storage-opswerks
-data:
-  config.json: |
-    {"key": "value"}
-###
-$ kubectl apply -f app-config.yaml                              (apply)
-$ kubectl get configmap app-config -n storage-opswerks          (verify)
-$ kubectl describe configmap app-config -n storage-opswerks     (to see the content)
-$ kubectl get configmap app-config -n storage-opswerks -o yaml  (to see the content)
-
-
-
-4. Create a Secret
-    •Task: Create a Secret named db-secret in the storage-opswerks namespace with the following key-value pair:
-        • key: password
-        • value: pathways2025 (base64 encoded)
-
-$ kubectl create secret generic db-secret --namespace=storage-opswerks --from-literal=password=pathways2025     (create secret)
-$ kubectl get secret db-secret -n storage-opswerks          (verify)
-$ kubectl describe secret db-secret -n storage-opswerks     (verify)
-
-
-
-5. Mount the ConfigMap and Secret into a Pod
-    • Task 1: Create a pod named configmap-secret-pod in the storage-opswerks namespace.
-    • Task 2: Mount the ConfigMap app-config and Secret db-secret into the pod as volumes.
-
-$ vi configmap-secret-pod.yaml      (mount)
-###
-apiVersion: v1
-kind: Pod
-metadata:
-  name: configmap-secret-pod
-  namespace: storage-opswerks
-spec:
-  containers:
-  - name: apache
-    image: httpd
-    ports:
-    - containerPort: 8080
-    volumeMounts:
-    - name: config-volume
-      mountPath: /usr/app-config
-    - name: secret-volume
-      mountPath: /usr/secret
-  volumes:
-  - name: config-volume
-    configMap:
-      name: app-config
-  - name: secret-volume
-    secret:
-      secretName: db-secret
-###
-$ kubectl apply -f configmap-secret-pod.yaml        (apply)
-$ kubectl get pods -n storage-opswerks              (verify)
-
-
-
-Networking
-
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-frontend
-  namespace: my-namespace
-spec:
-  podSelector:
-    matchLabels:
-      app: frontend
-  policyTypes:
-  - Ingress
-  ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          role: backend
-    ports:
-    - protocol: TCP
-      port: 80
-
-kubectl apply -f network-policy.yaml
-kubectl get networkpolicy -n my-namespace
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-service
-spec:
-  selector:
-    app: myapp
-  ports:
-    - port: 80
-      targetPort: 8080
-  type: ClusterIP
-
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: frontend-ingress
-  namespace: my-namespace
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - host: ""
-    http:
-      paths:
-      - path: /app
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
-
-kubectl apply -f ingress.yaml
-kubectl get ingress -n my-namespace
-
-kubectl get svc
-kubectl get ep     # Check endpoints
-kubectl describe ingress my-ingress
-kubectl get networkpolicy -n &lt;ns&gt;
-
-
-
-1. Create a Network Policy
-    • Task 1: Create a namespace called networking-opswerks.
-    • Task 2: Create a Network Policy named allow-frontend in the networking-opswerks namespace to allow incoming traffic to the frontend pod on port 80 from pods in the same namespace with the label role=backend.
-
-$ kubectl create namespace networking-opswerks      (create namespace)
-$ vi allow-frontend.yaml        (create network allow-frontend)
-###
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-frontend
-  namespace: networking-opswerks
-spec:
-  podSelector:
-    matchLabels:
-      app: frontend     # Targets pods with label app=frontend
-  ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          role: backend   # Only allow pods with role=backend label
-    ports:
-    - protocol: TCP
-      port: 80
-  policyTypes:
-  - Ingress
-###
-$ kubectl apply -f allow-frontend.yaml      (apply)
-$ kubectl get ns        (verify)
-
-
-2. Create a ClusterIP Service
-    • Task: Create a ClusterIP Service named backend-service in the networking-opswerks namespace to expose the backend pods on port 8080.
-
-[skip if already done]
-$ vi backend-pod.yaml       (create backend pod)
-###
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-service
-  namespace: networking-opswerks
-spec:
-  selector:
-    app: backend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
-###
-$ kubectl apply -f backend-pod.yaml  (apply)
-$ kubectl label pod backend-pod app=backend -n networking-opswerks
-
-
-
-$ vi backend-service.yaml       (create backend)
-###
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-  namespace: networking-opswerks
-spec:
-  selector:
-    app: backend
-  ports:
-  - port: 8080       # Service port
-    targetPort: 80   # Target container port in backend pod
-    protocol: TCP
-  type: ClusterIP
-###
-$ kubectl apply -f backend-service.yaml     (apply)
-$ kubectl get networkpolicy -n networking-opswerks      (verify)
-$ kubectl describe networkpolicy allow-frontend -n networking-opswerks  (verify)
-
-
-
-    
-3. Create an Ingress Resource
-    • Task: Create an Ingress resource named frontend-ingress in the networking-opswerks namespace to expose the frontend pods on port 80 with the path /app.
-
-$ vi frontend-ingress.yaml      (create ingress)
-###
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: frontend-ingress
-  namespace: networking-opswerks
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /app
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
-###              
-$ kubectl apply -f frontend-ingress.yaml        (apply)
-$ kubectl get ingress -n networking-opswerks    (verify)
-$ kubectl describe ingress frontend-ingress -n networking-opswerks  (verify)
-
-
-
-Troubleshooting
-
-1. Troubleshoot the node and pod
-    • Scenario: You are a Kubernetes administrator responsible for maintaining the health and performance of your organization's Kubernetes cluster. You have been notified that one of the nodes is not functioning properly.
-    • You also found that the pod fix-my-pod is not running as it is supposed to.
-    • Tasks:
-        • Ensure the node returns to a ready state.
-$ kubectl get nodes (look for NotReady state)
-$ kubectl describe node &lt;node-name&gt;  
-
-kubelet
-$ systemctl status kubelet
-$ sudo systemctl restart kubelet
-
-Taints or Node Unschedulable
-$ kubectl uncordon &lt;node-name&gt;
-
-        • Ensure the pod is running and working correctly on the node.
-$ kubectl get pods -o wide --all-namespaces (verify all pods status)
-$ kubectl get pod fix-my-pod    (verify status of fix-my-pod)
-$ kubectl edit pod fix-my-pod -n namespace  (edit pod)
-
-example: fix-my-pod.yaml
-###
-apiVersion: v1
-kind: Pod
-metadata:
-  name: fix-my-pod
-  namespace: default
-  labels:
-    app: fixme
-spec:
-  containers:
-  - name: web
-    image: nginx  # or httpd or any known-good image
-    ports:
-    - containerPort: 80
-###
+https://www.nbtechsupport.co.in/2021/05/git-create-branches.html
+
+
+_______________
+<h3>Git Merge Branches</h3>
+
+The Nautilus application development team has been working on a project repository /opt/demo.git. This repo is cloned at /usr/src/kodekloudrepos on storage server in Stratos DC. They recently shared the following requirements with DevOps team:
+
+Create a new branch xfusion in /usr/src/kodekloudrepos/demo repo from master and copy the /tmp/index.html file (present on storage server itself) into the repo. Further, add/commit this file in the new branch and merge back that branch into master branch. Finally, push the changes to the origin for both of the branches.
+
+$ ssh natasha@ststor01              (storage server)
+$ sudo su -                         (switch to root user)
+$ ls -ld /usr/src/kodekloudrepos/demo/  (check path location)
+$ cd /usr/src/kodekloudrepos/demo/      (go to location path)
+$ git status                        (check status)
+$ git checkout -b xfusion           (create branch)
+$ git status                        (check status)
+$ git branch                        (verify)
+$ cp /tmp/index.html /usr/src/kodekloudrepos/demo/      (copy to location)
+$ ls -ld /usr/src/kodekloudrepos/demo/   (verify)
+$ git add index.html                (add the file)
+$ git commit -m "add xfusion"
+$ git checkout master               (go to master branch)
+$ git merge xfusion                 (merge the xfusion branch)
+$ git push -u origin xfusion        ()
+$ git push -u origin master         ()
+
+https://www.nbtechsupport.co.in/2021/07/git-merge-branches.html
+
+
+
+_______________
+<h3>Git Manage Remotes</h3>
+
+The xFusionCorp development team added updates to the project that is maintained under /opt/demo.git repo and cloned under /usr/src/kodekloudrepos/demo. Recently some changes were made on Git server that is hosted on Storage server in Stratos DC. The DevOps team added some new Git remotes, so we need to update remote on /usr/src/kodekloudrepos/demo repository as per details mentioned below:
+
+a. In /usr/src/kodekloudrepos/demo repo add a new remote dev_demo and point it to /opt/xfusioncorp_demo.git repository.
+
+b. There is a file /tmp/index.html on same server; copy this file to the repo and add/commit to master branch.
+
+c. Finally push master branch to this new remote origin.
+
+$ ssh natasha@ststor01              (storage server)
+$ sudo su -                         (switch to root user)
+$ cd /usr/src/kodekloudrepos/demo   (go to location)
+$ ls -ld                            (check location)
+$ git remote add dev_demo /opt/xfusioncorp_demo.git     (add new remote)
+$ cp /tmp/index.html .              (copy)
+$ ls -ld                            (check location)
+$ git init                          (start a new repo)
+$ git add index.html                (add the file)
+$ git commit -m "add index.html"    (commit the file)
+$ git push -u dev_demo  master      ()
+
+https://www.nbtechsupport.co.in/2021/05/git-manage-remotes.html
+
+_______________
+<h3>Git Revert Some Changes</h3>
+
+The Nautilus application development team was working on a git repository /usr/src/kodekloudrepos/apps present on Storage server in Stratos DC. However, they reported an issue with the recent commits being pushed to this repo. They have asked the DevOps team to revert repo HEAD to last commit. Below are more details about the task:
+
+1. In /usr/src/kodekloudrepos/apps git repository, revert the latest commit ( HEAD ) to the previous commit (JFYI the previous commit hash should be with initial commit message ).
+
+2. Use revert apps message (please use all small letters for commit message) for the new revert commit.
+
+
+
+https://www.nbtechsupport.co.in/2021/07/git-revert-some-changes.html
         
     </div>
   </div>
@@ -675,3 +257,4 @@ spec:
   </script>
 </body>
 </html>
+
