@@ -68,6 +68,8 @@ $ ls -ld /opt/beta.git                  (show directory)
 $ git --git-dir=/opt/beta.git status    (verify status)
 
 
+
+
 _______________
 <h3>Clone Git Repository on Storage Server</h3>
 
@@ -79,6 +81,7 @@ $ cd /usr/src/kodekloudrepos    (change to target location)
 
 2. Clone this Git repository to the /usr/src/kodekloudrepos directory. Ensure no modifications are made to the repository during the cloning process.
 $ sudo git clone /opt/cluster.git     (git location to be cloned)
+
 
 
 
@@ -96,6 +99,8 @@ There is a Git server utilized by the Nautilus project teams. Recently, a new de
 Note: For tasks requiring web UI changes, screenshots are necessary for review purposes. Additionally, consider utilizing screen recording software such as loom.com to record and share your task completion process.
 
 ** Mag FORK ra **
+
+
 
 
 _______________
@@ -123,6 +128,8 @@ $ git push -u origin master         (push to master branch)
 https://www.nbtechsupport.co.in/2021/05/git-repository-update.html
 
 
+
+
 _______________
 <h3>Delete Git Branch</h3>
 
@@ -137,9 +144,11 @@ $ git status                (check git status)
 $ git branch -a             (check branches and which one is default)
 $ git checkout master       (go to master branch)
 $ git branch --delete xfusioncorp_ecommerce     (delete branch)
-$ git brannnch -a           (verify branch)
+$ git branch -a             (verify branch)
 
 https://www.nbtechsupport.co.in/2023/10/git-delete-branches-kodekloud.html
+
+
 
 
 _______________
@@ -162,6 +171,9 @@ $ ls -ld                      (verify)
 
 https://www.nbtechsupport.co.in/2021/06/git-install-and-create-repository.html
 
+
+
+
 _______________
 <h3>Git Create Branches</h3>
 
@@ -181,6 +193,8 @@ $ git status                      (check status)
 $ git branch -a                   (verify)
 
 https://www.nbtechsupport.co.in/2021/05/git-create-branches.html
+
+
 
 
 _______________
@@ -211,6 +225,7 @@ https://www.nbtechsupport.co.in/2021/07/git-merge-branches.html
 
 
 
+
 _______________
 <h3>Git Manage Remotes</h3>
 
@@ -236,6 +251,9 @@ $ git push -u dev_demo  master      ()
 
 https://www.nbtechsupport.co.in/2021/05/git-manage-remotes.html
 
+
+
+
 _______________
 <h3>Git Revert Some Changes</h3>
 
@@ -245,9 +263,68 @@ The Nautilus application development team was working on a git repository /usr/s
 
 2. Use revert apps message (please use all small letters for commit message) for the new revert commit.
 
+$ ssh natasha@ststor01              (storage server)
+$ sudo su -                         (switch to root user)
+$ ls -ld /usr/src/kodekloudrepos/apps/      (check location)
+$ cd /usr/src/kodekloudrepos/apps/  (go to location)
+$ git status                        (git status)
+$ git log                           (check git log)
+$ git revert HEAD                   (undo the recent commit)
+$ git add .
+$ git commit -m "revert demo"       (saves the reversal)
+$ git log                           (verify git log)
 
 
 https://www.nbtechsupport.co.in/2021/07/git-revert-some-changes.html
+
+
+
+
+_______________
+<h3>Git Cherry Pick</h3>
+
+
+_______________
+<h3>Manage Git Pull Requests</h3>
+
+
+_______________
+<h3>Git hard reset</h3>
+
+
+_______________
+<h3>Git Clean</h3>
+
+
+_______________
+<h3>Git Stash</h3>
+
+
+
+
+
+
+
+
+_______________
+<h3>Git Rebase</h3>
+
+
+_______________
+<h3>Manage Git Repositories</h3>
+
+
+_______________
+<h3>Resolve Git Merge Conflicts</h3>
+
+
+_______________
+<h3>Git Hook</h3>
+
+
+_______________
+<h3>Git Setup from Scratch</h3>
+      
         
     </div>
   </div>
@@ -257,4 +334,5 @@ https://www.nbtechsupport.co.in/2021/07/git-revert-some-changes.html
   </script>
 </body>
 </html>
+
 
