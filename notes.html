@@ -51,11 +51,21 @@
     </header>
 
     <div class="notepad">
-
-
 <h1>JENKINS_LABS</h1>
 
 <h3 style="border-top: 1px dotted white;">Get Familiar with the Application</h3>
+In this lab, we will deploy the go-webapp-sample app that we saw in the lecture. This sample application uses Echo as web application framework and Gorm as the backend database.
+
+Which of the following commands is used to clone a git repository?
+git clone <repo-url>
+
+Clone this git repository under /home/bob.
+$ cd /home/bob
+$ git clone https://github.com/kodekloudhub/go-webapp-sample.git
+
+Now let us deploy the sample app from the repository that we just cloned.
+$ cd /home/bob/go-webapp-sample/
+$ go run main.go &
 
 <h3 style="border-top: 1px dotted white;">Install Jenkins on a VM</h3>
 
@@ -202,5 +212,6 @@ $ cat /var/lib/jenkins/secrets/initialAdminPassword (unlock jenkins)
   </script>
 </body>
 </html>
+
 
 
