@@ -73,6 +73,42 @@ You can login with the following username and password:
 # password: test
 
 <h3 style="border-top: 1px dotted white;">Install Jenkins on a VM</h3>
+Which of the following options best describes what Jenkins is?
+- An Automation Server
+
+What is CI/CD?
+- CI/CD is the continuous integration and continuous delivery/deployment process.
+
+Can we use Jenkins to automate routine system administration tasks?
+- Yes
+
+Which of the following packages is a prerequisite for installing Jenkins ?
+- Java
+
+Can we run Jenkins in a container ?
+- Yes
+
+Now let us install Jenkins on the centos-host machine and configure it to run on port 8090 instead of the default port 8080.
+$ sudo yum install epel-release -y
+$ sudo yum install fontconfig java-17-openjdk -y
+$ sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --no-check-certificate
+$ sudo rpm --import http://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+$ sudo yum install jenkins -y
+
+Edit /lib/systemd/system/jenkins.service file and change Jenkins port to 8090 by updating Environment="JENKINS_PORT=" variable value.
+$ sudo vi /lib/systemd/system/jenkins.service
+# Change Environment="JENKINS_PORT=8090" to [_PORT=8090]
+
+$ sudo systemctl start jenkins
+$ sudo systemctl status jenkins
+
+Now, you should be able to access Jenkins using Jenkins button on the top bar. Complete its installation from UI and make sure to create first admin user as per details mentioned below:
+$ sudo cat /var/lib/jenkins/secrets/initialAdminPassword    (password)
+# install suggested plugins     [hit retry if some failed]
+# Username: admin
+# Password: Admin321
+# Full name: Admin User
+# E-mail address: admin@example.com
 
 <h3 style="border-top: 1px dotted white;">Jenkins CLI</h3>
 
@@ -124,6 +160,21 @@ $ cat /var/lib/jenkins/secrets/initialAdminPassword (unlock jenkins)
 
 
 <h3 style="border-top: 1px dotted white;">Install Jenkins Plugins</h3>
+The Nautilus DevOps team has recently setup a Jenkins server, which they want to use for some CI/CD jobs. Before that they want to install some plugins which will be used in most of the jobs. Please find below more details about the task
+
+1. Click on the Jenkins button on the top bar to access the Jenkins UI. Login using username admin and Adm!n321 password.
+
+2. Once logged in, install the Git and GitLab plugins. Note that you may need to restart Jenkins service to complete the plugins installation, If required, opt to Restart Jenkins when installation is complete and no jobs are running on plugin installation/update page i.e update centre.
+
+Note:
+
+1. After restarting the Jenkins service, wait for the Jenkins login page to reappear before proceeding.
+
+2. For tasks involving web UI changes, capture screenshots to share for review or consider using screen recording software like loom.com for documentation and sharing.
+
+# Manage Jenkins > Plugins > Available Plugins
+# Select Git and Gitlab then install
+# Restart Jenkins
 
 
 <h3 style="border-top: 1px dotted white;">Configure Jenkins User Access</h3>
@@ -217,6 +268,7 @@ $ cat /var/lib/jenkins/secrets/initialAdminPassword (unlock jenkins)
   </script>
 </body>
 </html>
+
 
 
 
