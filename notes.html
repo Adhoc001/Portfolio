@@ -276,6 +276,57 @@ Note:
 
 
 <h3 style="border-top: 1px dotted white;">Jenkins Setup Node App</h3>
+
+
+<h2>Setting up your Jenkins instance</h2>
+• SSH into the first instance (server) and create a folder named jenkins_home in the home directory.
+• Execute the following command:
+    $ docker run -p 8080:8080 -v ~/jenkins_home:/var/jenkins_home -d --name jenkins-server jenkins/jenkins:lts-jdk17
+    # If you need to run this command again, delete the existing jenkins-server container first.
+
+• Open your browser and go to: [IP of Server]:8080 to visit your Jenkins instance. Follow the first-time instructions:
+    # The secrets folder is located at ~/jenkins_home
+    # Install the default plugins
+    # Use your instance’s username and password to create your first Jenkins user
+
+<h2>Setting up the agent</h2>
+• Under Manage Jenkins > Credentials, create a username:password credential with your instance’s username and password.
+• Under Manage Jenkins > Nodes (or go to [IP of Server]:8080/computer), create a new permanent agent named linux-node with the following settings:
+    • Executors: 1
+    • Remote root directory: /home/[username]/
+    • Usage: Use this node as much as possible
+    • Launch method: SSH
+    • Host: IP or hostname of your second instance (agent)
+    • Credentials: Use the credential created above
+    • Host Key Verification Strategy: Non verifying Verification Strategy
+
+# Ensure the agent is running.
+
+<h2>Setting up your repository</h2>
+    • Fork https://github.com/opswerks-lab/node-webapp and clone it on the server instance.
+
+    • In your GitHub account settings, go to Developer settings > Personal access tokens and create a token with repo access.
+    Note: You’ll need this token to push changes to the repo. Alternatively, you can use SSH keys.
+
+    • In Jenkins, under Manage Jenkins > Credentials, create a username:password credential with your GitHub username and the personal access token as password.
+
+<h2>Main Tasks</h2>
+• (1 Point) Install the Docker Pipeline plugin.
+Note: Restarting Jenkins might kill the Docker container, so you might need to re-run the Docker command to restart Jenkins.
+
+• (1 Point) Create a pipeline named node-app.
+
+• (2 Points) Create a Jenkinsfile in the master/main branch of your forked node-webapp repo and reference it in your pipeline. Use the Git credentials you created. Do NOT define pipeline steps manually in Jenkins UI.
+
+• (2 Points) The pipeline should build the Dockerfile in the repo and run it on the agent.
+
+• (1 Point) The pipeline must use the agent you set up.
+
+• (1 Point) Troubleshoot and fix any build issues. If none occur, consider it a bonus point.
+
+
+<h2>Validation</h2>
+• Visiting [IP of Agent]:3000 should show the running node-webapp. Achieving this means a perfect score.
         
     </div>
   </div>
@@ -300,6 +351,7 @@ Note:
   </script>
 </body>
 </html>
+
 
 
 
