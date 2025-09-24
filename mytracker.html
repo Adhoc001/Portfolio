@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CKA Tracker</title>
+  <link rel="stylesheet" href="stylex.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>罗里·詹姆斯</h1>
+
+    <div class="filter-container">
+      <label for="view-mode"></label>
+      <select id="view-mode">
+        <option value="daily" selected>Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="taskChart"></canvas>
+    </div>
+
+    <div class="calendar-controls">
+      <button id="prev-month">←</button>
+      <span id="current-month"></span>
+      <button id="next-month">→</button>
+    </div>
+
+    <div id="calendar" class="calendar"></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="task-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-modal" class="close-btn">✖</button>
+      <h2 id="modal-date-heading"></h2>
+      <ul id="task-list"></ul>
+      <input type="text" id="new-task-input" placeholder="New task...">
+      <button id="add-task-btn">Add Task</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
