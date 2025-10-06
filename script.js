@@ -1,44 +1,63 @@
-const calendarEl = document.getElementById("calendar");
-const currentMonthLabel = document.getElementById("current-month");
-const prevMonthBtn = document.getElementById("prev-month");
-const nextMonthBtn = document.getElementById("next-month");
-const viewModeSelect = document.getElementById("view-mode");
-
-const modal = document.getElementById("task-modal");
-const modalDateHeading = document.getElementById("modal-date-heading");
-const closeModalBtn = document.getElementById("close-modal");
-const taskListEl = document.getElementById("task-list");
-const newTaskInput = document.getElementById("new-task-input");
-const addTaskBtn = document.getElementById("add-task-btn");
-
-const year = 2025;
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const today = new Date();
-let currentMonth = today.getFullYear() === year ? today.getMonth() : 0;
-let currentSelectedDate = null;
-
-let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+// --- Global Variables ---
+const tasks = {};
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
 let chart;
 
-// --- Render graph ---
+// --- Persistence Helpers ---
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function loadTasks() {
+  const saved = localStorage.getItem("tasks");
+  if (saved) {
+    Object.assign(tasks, JSON.parse(saved));
+  }
+}
+
+// --- Utility Arrays ---
+const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+// --- Render Graph ---
 function renderGraph(mode) {
   const labels = [];
   const completed = [];
   const total = [];
 
   const month = currentMonth;
+  const year = currentYear;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  if (mode === "daily") {
+  if (mode === "currentWeek") {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const lastSunday = new Date(today);
+    lastSunday.setDate(today.getDate() - dayOfWeek);
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(lastSunday);
+      date.setDate(lastSunday.getDate() + i);
+
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const dayTasks = tasks[dateStr] || [];
+
+      labels.push(weekdayNames[date.getDay()]);
+      completed.push(dayTasks.filter(t => t.done).length);
+      total.push(dayTasks.length - dayTasks.filter(t => t.done).length);
+    }
+
+  } else if (mode === "daily") {
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       labels.push(d);
       const dayTasks = tasks[dateStr] || [];
       completed.push(dayTasks.filter(t => t.done).length);
-      total.push(dayTasks.length - dayTasks.filter(t => t.done).length); // uncompleted
+      total.push(dayTasks.length - dayTasks.filter(t => t.done).length);
     }
   } else if (mode === "weekly") {
     let weekTotal = 0, weekCompleted = 0, weekCount = 0;
@@ -51,7 +70,7 @@ function renderGraph(mode) {
         weekCount++;
         labels.push("W" + weekCount);
         completed.push(weekCompleted);
-        total.push(weekTotal - weekCompleted); // uncompleted
+        total.push(weekTotal - weekCompleted);
         weekTotal = 0;
         weekCompleted = 0;
       }
@@ -68,7 +87,7 @@ function renderGraph(mode) {
         done += dayTasks.filter(t => t.done).length;
       }
       completed.push(done);
-      total.push(sum - done); // uncompleted
+      total.push(sum - done);
     }
   }
 
@@ -111,7 +130,7 @@ function renderGraph(mode) {
           stacked: true,
           ticks: {
             color: "#ccc",
-            font: { size: 11, weight: "normal" },
+            font: { size: 11 },
             autoSkip: false,
             maxRotation: 0,
             minRotation: 0
@@ -122,7 +141,7 @@ function renderGraph(mode) {
           stacked: true,
           ticks: {
             color: "#ccc",
-            font: { size: 11, weight: "normal" },
+            font: { size: 11 },
             stepSize: 1,
             callback: function (value) {
               return Number.isInteger(value) ? value : null;
@@ -135,172 +154,167 @@ function renderGraph(mode) {
   });
 }
 
-// --- Calendar ---
-function renderMonth(year, month) {
-  calendarEl.innerHTML = "";
-  currentMonthLabel.textContent = `${monthNames[month]} ${year}`;
+// --- Render Calendar ---
+function renderMonth(month, year) {
+  const calendar = document.querySelector(".calendar");
+  calendar.innerHTML = "";
 
-  weekdayNames.forEach(day => {
-    const div = document.createElement("div");
-    div.classList.add("weekday");
-    div.textContent = day;
-    calendarEl.appendChild(div);
-  });
+  const firstDay = new Date(year, month).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const totalDays = new Date(year, month + 1, 0).getDate();
+  document.getElementById("current-month").textContent = `${monthNames[month]} ${year}`;
 
+  // Weekday headers
+  for (let i = 0; i < 7; i++) {
+    const weekday = document.createElement("div");
+    weekday.className = "weekday";
+    weekday.textContent = weekdayNames[i];
+    calendar.appendChild(weekday);
+  }
+
+  // Empty cells before first day
   for (let i = 0; i < firstDay; i++) {
     const empty = document.createElement("div");
-    empty.classList.add("day", "empty");
-    calendarEl.appendChild(empty);
+    empty.className = "day empty";
+    calendar.appendChild(empty);
   }
 
-  for (let day = 1; day <= totalDays; day++) {
-    const cell = document.createElement("div");
-    cell.classList.add("day");
-    cell.textContent = day;
+  // Days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const day = document.createElement("div");
+    day.className = "day";
+    day.textContent = d;
 
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    cell.dataset.date = dateStr;
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
-    if (
-      year === today.getFullYear() &&
-      month === today.getMonth() &&
-      day === today.getDate()
-    ) {
-      cell.classList.add("today");
+    const today = new Date();
+    if (d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+      day.classList.add("today");
     }
 
-    cell.addEventListener("click", () => openTaskModal(dateStr));
-    calendarEl.appendChild(cell);
+    day.addEventListener("click", () => openModal(dateStr));
+    calendar.appendChild(day);
   }
-
-  renderGraph(viewModeSelect.value);
 }
 
-// --- Modal ---
-function openTaskModal(dateStr) {
-  currentSelectedDate = dateStr;
-  modalDateHeading.textContent = `Tasks for ${dateStr}`;
-  newTaskInput.value = "";
-  renderTasks();
+// --- Modal Handling ---
+const modal = document.querySelector(".modal");
+const closeBtn = document.querySelector(".close-btn");
+const addTaskBtn = document.getElementById("add-task-btn");
+const newTaskInput = document.getElementById("new-task-input");
+let selectedDate = null;
+
+function openModal(dateStr) {
+  selectedDate = dateStr;
   modal.classList.remove("hidden");
-  newTaskInput.focus();
+  renderTasks(dateStr);
 }
 
-function renderTasks() {
-  taskListEl.innerHTML = "";
-  const dayTasks = tasks[currentSelectedDate] || [];
+closeBtn.addEventListener("click", () => {
+  modal.classList.add("hidden");
+});
 
-  if (dayTasks.length === 0) {
-    taskListEl.innerHTML = `<li><em>No tasks yet</em></li>`;
-    return;
+// NEW — close modal when clicking outside content
+modal.addEventListener("click", function (e) {
+  if (e.target === modal) {
+    modal.classList.add("hidden");
   }
+});
 
-  dayTasks.forEach((task, i) => {
+// NEW — close modal when pressing Escape key
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+    modal.classList.add("hidden");
+  }
+});
+
+function renderTasks(dateStr) {
+  const list = document.getElementById("task-list");
+  list.innerHTML = "";
+
+  (tasks[dateStr] || []).forEach((task, index) => {
     const li = document.createElement("li");
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = task.done;
     checkbox.addEventListener("change", () => {
-      tasks[currentSelectedDate][i].done = checkbox.checked;
-      saveTasks();
-      renderGraph(viewModeSelect.value);
+      task.done = checkbox.checked;
+      saveTasks(); // persist on toggle
+      renderGraph(document.getElementById("view-mode").value);
     });
 
     const span = document.createElement("span");
     span.textContent = task.text;
-    if (task.done) {
-      span.style.textDecoration = "line-through";
-      span.style.color = "#888";
-    }
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", () => {
-      tasks[currentSelectedDate].splice(i, 1);
-      if (tasks[currentSelectedDate].length === 0) delete tasks[currentSelectedDate];
-      saveTasks();
-      renderTasks();
-      renderGraph(viewModeSelect.value);
+      tasks[dateStr].splice(index, 1);
+      saveTasks(); // persist on delete
+      renderTasks(dateStr);
+      renderGraph(document.getElementById("view-mode").value);
     });
 
     li.appendChild(checkbox);
     li.appendChild(span);
     li.appendChild(deleteBtn);
-
-    taskListEl.appendChild(li);
+    list.appendChild(li);
   });
-}
-
-function saveTasks() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 addTaskBtn.addEventListener("click", () => {
   const text = newTaskInput.value.trim();
-  if (text === "") return;
-  if (!tasks[currentSelectedDate]) tasks[currentSelectedDate] = [];
-  tasks[currentSelectedDate].push({ text, done: false });
-  saveTasks();
-  renderTasks();
-  newTaskInput.value = "";
-  newTaskInput.focus();
-  renderGraph(viewModeSelect.value);
-});
-
-closeModalBtn.addEventListener("click", () => {
-  modal.classList.add("hidden");
-  currentSelectedDate = null;
-});
-
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    modal.classList.add("hidden");
-    currentSelectedDate = null;
+  if (text && selectedDate) {
+    if (!tasks[selectedDate]) tasks[selectedDate] = [];
+    tasks[selectedDate].push({ text, done: false });
+    saveTasks(); // persist on add
+    newTaskInput.value = "";
+    renderTasks(selectedDate);
+    renderGraph(document.getElementById("view-mode").value);
   }
 });
 
-prevMonthBtn.addEventListener("click", () => {
-  if (currentMonth > 0) {
-    currentMonth--;
-    renderMonth(year, currentMonth);
+// --- Filter Dropdown ---
+document.getElementById("view-mode").addEventListener("change", (e) => {
+  renderGraph(e.target.value);
+});
+
+// --- Calendar Controls ---
+document.getElementById("prev-month").addEventListener("click", () => {
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderMonth(currentMonth, currentYear);
+  renderGraph(document.getElementById("view-mode").value);
+});
+
+document.getElementById("next-month").addEventListener("click", () => {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderMonth(currentMonth, currentYear);
+  renderGraph(document.getElementById("view-mode").value);
+});
+
+// --- Download Chart as PNG ---
+document.getElementById("download-chart").addEventListener("click", () => {
+  if (chart) {
+    const link = document.createElement("a");
+    link.href = chart.toBase64Image();
+    link.download = `chart-${new Date().toISOString().split("T")[0]}.png`;
+    link.click();
+  } else {
+    alert("No chart available to download yet.");
   }
 });
 
-nextMonthBtn.addEventListener("click", () => {
-  if (currentMonth < 11) {
-    currentMonth++;
-    renderMonth(year, currentMonth);
-  }
-});
 
-viewModeSelect.addEventListener("change", () => {
-  renderGraph(viewModeSelect.value);
-});
-
-// Initial
-renderMonth(year, currentMonth);
-
-// --- Resize chart dynamically ---
-function resizeChartContainer() {
-  const chartContainer = document.querySelector(".chart-container");
-  const container = document.querySelector(".container");
-  const filterHeight = document.querySelector(".filter-container").offsetHeight;
-  const calendarControlsHeight = document.querySelector(".calendar-controls").offsetHeight;
-  const calendarHeight = document.querySelector("#calendar").offsetHeight;
-  const padding = 60; // extra spacing
-
-  // Calculate remaining height for chart
-  const availableHeight = window.innerHeight - filterHeight - calendarControlsHeight - calendarHeight - padding;
-  chartContainer.style.height = `${availableHeight}px`;
-
-  if (chart) chart.resize(); // ensure chart.js redraws
-}
-
-// Call initially and on window resize
-resizeChartContainer();
-window.addEventListener("resize", resizeChartContainer);
-
+// --- Init ---
+loadTasks(); // load from localStorage first
+renderMonth(currentMonth, currentYear);
+renderGraph(document.getElementById("view-mode").value);
